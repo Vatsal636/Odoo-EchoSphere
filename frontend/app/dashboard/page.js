@@ -7,6 +7,7 @@ import KpiCard from '@/components/KpiCard';
 import EsgRadarChart from '@/components/EsgRadarChart';
 import CarbonTrendChart from '@/components/CarbonTrendChart';
 import CarbonByDeptChart from '@/components/CarbonByDeptChart';
+import ScopeBreakdownChart from '@/components/ScopeBreakdownChart';
 import LeaderboardTable from '@/components/LeaderboardTable';
 import { Loader2, Leaf, Target, AlertTriangle, Users, Flame, Calendar, TrendingUp, Shield, Award } from 'lucide-react';
 
@@ -112,11 +113,12 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* ESG Radar + Carbon by Dept - admin/manager only */}
+      {/* ESG Radar + Carbon by Dept + Scope - admin/manager only */}
       {(isAdmin || isManager) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <EsgRadarChart data={esgData} />
           <CarbonByDeptChart data={data.carbonByDept || []} />
+          <ScopeBreakdownChart data={data.carbonByScope || []} />
         </div>
       )}
 

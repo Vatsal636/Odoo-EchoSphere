@@ -5,16 +5,30 @@ import api from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import Modal from '@/components/Modal';
 import StatusBadge from '@/components/StatusBadge';
+import ScopeBreakdownChart from '@/components/ScopeBreakdownChart';
 import { Loader2, Plus, Trash2, Flame, Calendar, Filter } from 'lucide-react';
+
+const SCOPE3_CATEGORY_LABELS = {
+  purchased_goods_services: 'Purchased Goods & Services', capital_goods: 'Capital Goods',
+  fuel_energy_activities: 'Fuel & Energy Activities', upstream_transportation: 'Upstream Transportation',
+  waste_generated: 'Waste Generated', business_travel: 'Business Travel',
+  employee_commuting: 'Employee Commuting', upstream_leased_assets: 'Upstream Leased Assets',
+  downstream_transportation: 'Downstream Transportation', processing_of_sold_products: 'Processing of Sold Products',
+  use_of_sold_products: 'Use of Sold Products', end_of_life_treatment: 'End-of-Life Treatment',
+  downstream_leased_assets: 'Downstream Leased Assets', franchises: 'Franchises',
+  investments: 'Investments', other: 'Other'
+};
 
 export default function EnvironmentalPage() {
   const [transactions, setTransactions] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [factors, setFactors] = useState([]);
+  const [vendors, setVendors] = useState([]);
+  const [scopeData, setScopeData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: '', department: '', emissionFactor: '', quantity: '', date: '', source: 'manual', notes: '' });
+  const [form, setForm] = useState({ name: '', department: '', emissionFactor: '', quantity: '', date: '', source: 'manual', notes: '', scope: 'scope_1', scope3Category: '', vendor: '' });
   const [submitting, setSubmitting] = useState(false);
   const { user } = useAuth();
   const isManagerOrAdmin = user?.role === 'admin' || user?.role === 'manager';
@@ -22,14 +36,18 @@ export default function EnvironmentalPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [txRes, deptRes, factorRes] = await Promise.all([
+        const [txRes, deptRes, factorRes, vendorRes, scopeRes] = await Promise.all([
           api.get('/carbon-transactions'),
           api.get('/departments'),
           api.get('/emission-factors'),
+          api.get('/vendors').catch(() => ({ data: [] })),
+          api.get('/carbon-transactions/by-scope').catch(() => ({ data: [] })),
         ]);
         setTransactions(txRes.data);
         setDepartments(deptRes.data);
         setFactors(factorRes.data);
+        setVendors(vendorRes.data);
+        setScopeData(scopeRes.data);
       } catch (err) {
         setError('Failed to load data');
       } finally {
@@ -105,6 +123,11 @@ export default function EnvironmentalPage() {
         ))}
       </div>
 
+      {/* Scope Breakdown */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ScopeBreakdownChart data={scopeData} />
+      </div>
+
       {/* Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
@@ -117,6 +140,7 @@ export default function EnvironmentalPage() {
                 <th className="text-left px-4 py-3 font-medium text-gray-500">Factor</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-500">Quantity</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-500">kg CO2e</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500">Scope</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">Source</th>
                 {isManagerOrAdmin && <th className="text-center px-4 py-3 font-medium text-gray-500">Actions</th>}
               </tr>
@@ -130,6 +154,13 @@ export default function EnvironmentalPage() {
                   <td className="px-4 py-3 text-gray-600">{tx.emissionFactor?.name || '—'}</td>
                   <td className="px-4 py-3 text-right text-gray-600">{tx.quantity}</td>
                   <td className="px-4 py-3 text-right font-medium text-gray-900">{tx.emissionKg?.toFixed(1)}</td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                      tx.scope === 'scope_1' ? 'bg-green-100 text-green-700' :
+                      tx.scope === 'scope_2' ? 'bg-yellow-100 text-yellow-700' :
+                      tx.scope === 'scope_3' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
+                    }`}>{tx.scope === 'scope_3' && tx.vendor ? `S3-${tx.vendor.name}` : tx.scope?.replace('_', ' ')}</span>
+                  </td>
                   <td className="px-4 py-3"><StatusBadge status={tx.source} /></td>
                   {isManagerOrAdmin && (
                     <td className="px-4 py-3 text-center">
@@ -169,6 +200,35 @@ export default function EnvironmentalPage() {
               </select>
             </div>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Scope *</label>
+            <div className="flex gap-4">
+              {['scope_1', 'scope_2', 'scope_3'].map(s => (
+                <label key={s} className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="scope" value={s} checked={form.scope === s} onChange={e => setForm({...form, scope: e.target.value, scope3Category: '', vendor: ''})} className="text-green-600 focus:ring-green-500" />
+                  <span className="text-sm text-gray-700">{s === 'scope_1' ? 'Scope 1' : s === 'scope_2' ? 'Scope 2' : 'Scope 3'}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          {form.scope === 'scope_3' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Scope 3 Category</label>
+                <select value={form.scope3Category} onChange={e => setForm({...form, scope3Category: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                  <option value="">Select category</option>
+                  {Object.entries(SCOPE3_CATEGORY_LABELS).map(([val, label]) => <option key={val} value={val}>{label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vendor</label>
+                <select value={form.vendor} onChange={e => setForm({...form, vendor: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 outline-none">
+                  <option value="">Select vendor</option>
+                  {vendors.map(v => <option key={v._id} value={v._id}>{v.name}</option>)}
+                </select>
+              </div>
+            </>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>

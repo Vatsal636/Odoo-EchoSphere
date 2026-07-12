@@ -99,9 +99,15 @@ router.get('/', auth, async (req, res) => {
       }
     }
 
+    const carbonByScope = await CarbonTransaction.aggregate([
+      { $group: { _id: '$scope', totalKg: { $sum: '$emissionKg' } } },
+      { $project: { scope: '$_id', totalKg: { $round: ['$totalKg', 2] }, _id: 0 } }
+    ]);
+
     res.json({
       totalCarbonKg,
       carbonByDept: carbonByDept.map(c => ({ dept: c.dept || 'Unknown', totalKg: c.totalKg })),
+      carbonByScope: carbonByScope.map(s => ({ scope: s.scope, totalKg: s.totalKg })),
       activeGoals,
       goalsOnTrack,
       activeChallenges,

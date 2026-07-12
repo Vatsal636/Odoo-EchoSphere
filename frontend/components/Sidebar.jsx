@@ -18,6 +18,7 @@ const menuItems = [
     children: [
       { href: '/environmental', label: 'Carbon Transactions' },
       { href: '/environmental/goals', label: 'Sustainability Goals' },
+      { href: '/environmental/vendors', label: 'Vendors' },
     ]
   },
   {
@@ -28,6 +29,7 @@ const menuItems = [
     ]
   },
   { href: '/challenges', label: 'Challenges', icon: Target, roles: ['admin', 'manager', 'employee'] },
+  { href: '/analytics', label: 'Analytics', icon: Activity, roles: ['admin', 'manager'] },
   {
     label: 'Gamification', icon: Trophy, roles: ['admin', 'manager', 'employee'],
     children: [

@@ -24,6 +24,7 @@ export const PAGE_ACCESS = {
   '/dashboard': [ROLES.ADMIN, ROLES.MANAGER, ROLES.EMPLOYEE],
   '/environmental': [ROLES.ADMIN, ROLES.MANAGER],
   '/environmental/goals': [ROLES.ADMIN, ROLES.MANAGER],
+  '/environmental/vendors': [ROLES.ADMIN, ROLES.MANAGER],
   '/social': [ROLES.ADMIN, ROLES.MANAGER, ROLES.EMPLOYEE],
   '/social/participations': [ROLES.ADMIN, ROLES.MANAGER, ROLES.EMPLOYEE],
   '/challenges': [ROLES.ADMIN, ROLES.MANAGER, ROLES.EMPLOYEE],
@@ -33,4 +34,5 @@ export const PAGE_ACCESS = {
   '/governance/policies': [ROLES.ADMIN, ROLES.MANAGER],
   '/governance/compliance': [ROLES.ADMIN, ROLES.MANAGER],
   '/reports': [ROLES.ADMIN, ROLES.MANAGER],
+  '/analytics': [ROLES.ADMIN, ROLES.MANAGER],
 };
