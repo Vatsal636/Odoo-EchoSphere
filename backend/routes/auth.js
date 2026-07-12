@@ -11,7 +11,7 @@ router.post('/register', async (req, res) => {
     if (existing) return res.status(400).json({ error: 'Email already exists' });
     const user = await User.create({ name, email, password, role, department });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'ecosphere-hackathon-secret-key-2024', { expiresIn: '7d' });
-    res.status(201).json({ token, user: { id: user._id, name, email, role, department } });
+    res.status(201).json({ token, user: { id: user._id, name, email, role, department, totalXp: user.totalXp } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -25,7 +25,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'ecosphere-hackathon-secret-key-2024', { expiresIn: '7d' });
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department } });
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department, totalXp: user.totalXp } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
