@@ -17,6 +17,11 @@ export function AuthProvider({ children }) {
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
+      // Fetch fresh user data to keep XP in sync
+      api.get('/auth/me').then(res => {
+        setUser(res.data);
+        localStorage.setItem('user', JSON.stringify(res.data));
+      }).catch(console.error);
     }
     setLoading(false);
   }, []);

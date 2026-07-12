@@ -45,7 +45,7 @@ export default function LeaderboardPage() {
         {[2, 1, 3].map(rank => {
           const entry = top3[rank - 1];
           if (!entry) return <div key={rank} className="w-32" />;
-          const heights = ['', 'h-40', 'h-52', 'h-32'];
+          const heights = ['', 'h-52', 'h-40', 'h-32'];
           const icons = ['', Medal, Trophy, Award];
           const Icon = icons[rank];
           const colors = ['', 'text-yellow-500', 'text-gray-400', 'text-amber-600'];
