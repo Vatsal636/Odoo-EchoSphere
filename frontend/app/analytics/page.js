@@ -38,11 +38,18 @@ export default function AnalyticsPage() {
       setLoading(true);
       setError('');
       try {
-        const params = selectedDept ? `?department=${selectedDept}` : '';
-        const goalParam = selectedGoal ? `&goalId=${selectedGoal}` : '';
+        const queryParams = new URLSearchParams();
+        if (selectedDept) queryParams.append('department', selectedDept);
+        if (selectedGoal) queryParams.append('goalId', selectedGoal);
+        const qString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+
+        const anomalyParams = new URLSearchParams();
+        if (selectedDept) anomalyParams.append('department', selectedDept);
+        const aString = anomalyParams.toString() ? `?${anomalyParams.toString()}` : '';
+
         const [forecastRes, anomalyRes, benchmarkRes] = await Promise.all([
-          api.get(`/analytics/forecast${params}${selectedGoal ? goalParam : ''}`),
-          api.get(`/analytics/anomalies${params}`),
+          api.get(`/analytics/forecast${qString}`),
+          api.get(`/analytics/anomalies${aString}`),
           api.get('/analytics/benchmark'),
         ]);
         setForecastData(forecastRes.data);
