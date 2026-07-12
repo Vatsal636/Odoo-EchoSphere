@@ -31,7 +31,7 @@ export default function ForecastChart({ data, loading }) {
   }
   chartData.sort((a, b) => a.month.localeCompare(b.month));
 
-  const trendIcon = data.trend === 'rising' ? TrendingUp : data.trend === 'falling' ? TrendingDown : Minus;
+  const TrendIcon = data.trend === 'rising' ? TrendingUp : data.trend === 'falling' ? TrendingDown : Minus;
   const trendColor = data.trend === 'rising' ? 'text-red-600' : data.trend === 'falling' ? 'text-green-600' : 'text-gray-500';
 
   return (
@@ -40,7 +40,7 @@ export default function ForecastChart({ data, loading }) {
         <h3 className="text-lg font-semibold text-gray-900">Emissions Forecast</h3>
         {data.trend !== 'insufficient_data' && (
           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${trendColor} bg-opacity-10`}>
-            {trendIcon({ className: 'h-4 w-4' })}
+            <TrendIcon className="h-4 w-4" />
             {data.trend}
           </span>
         )}
