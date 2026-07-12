@@ -23,6 +23,7 @@ const notificationRoutes = require('./routes/notifications');
 const reportRoutes = require('./routes/reports');
 const analyticsRoutes = require('./routes/analytics');
 const vendorRoutes = require('./routes/vendors');
+const assistantRoutes = require('./routes/assistant');
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/vendors', vendorRoutes);
+app.use('/api/assistant', assistantRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 

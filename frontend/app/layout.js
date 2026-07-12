@@ -1,6 +1,7 @@
 import './globals.css';
 import { AuthProvider } from '@/lib/auth';
 import AppLayout from '@/components/AppLayout';
+import EsgAssistant from '../components/EsgAssistant';
 
 export const metadata = {
   title: 'EcoSphere - ESG Management Platform',
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <AppLayout>{children}</AppLayout>
         </AuthProvider>
+        <EsgAssistant />
       </body>
     </html>
   );
