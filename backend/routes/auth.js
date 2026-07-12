@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
@@ -25,6 +26,18 @@ router.post('/login', async (req, res) => {
     if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'ecosphere-hackathon-secret-key-2024', { expiresIn: '7d' });
     res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/me', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .select('-password')
+      .populate('department', 'name');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

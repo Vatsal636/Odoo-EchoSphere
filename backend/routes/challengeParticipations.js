@@ -5,6 +5,7 @@ const User = require('../models/User');
 const auth = require('../middleware/auth');
 const requireRole = require('../middleware/roles');
 const { checkAndAwardBadges } = require('../utils/badgeHelper');
+const { notifyUser } = require('../utils/notificationService');
 const router = express.Router();
 
 router.post('/', auth, async (req, res) => {
@@ -81,11 +82,11 @@ router.patch('/:id/approve', auth, requireRole('admin', 'manager'), async (req, 
       .populate('employee', 'name');
     res.json(updated);
     await notifyUser({
-      userId: participation.employee,
-      type: participation.approvalStatus === 'approved' ? 'challenge_approved' : 'challenge_rejected',
-      title: participation.approvalStatus === 'approved' ? 'Challenge Approved!' : 'Challenge Submission Rejected',
-      message: participation.approvalStatus === 'approved'
-        ? `Your submission was approved. You earned ${participation.xpAwarded} XP!`
+      userId: cp.employee,
+      type: cp.approvalStatus === 'approved' ? 'challenge_approved' : 'challenge_rejected',
+      title: cp.approvalStatus === 'approved' ? 'Challenge Approved!' : 'Challenge Submission Rejected',
+      message: cp.approvalStatus === 'approved'
+        ? `Your submission was approved. You earned ${cp.xpAwarded} XP!`
         : `Your challenge submission needs revision. Check the feedback and resubmit.`,
       link: '/challenges'
     });
